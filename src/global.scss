@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+}
+
+.no-sel {
+    @extend %no-sel;
+}
+
+%no-sel {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
