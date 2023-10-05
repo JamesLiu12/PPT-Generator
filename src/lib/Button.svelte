@@ -23,5 +23,16 @@
         width: fit-content;
         border: 1px solid gray; border-radius: 0.3rem;
         padding: 1rem 1.4rem;
+
+        color: #333;
+
+        &:hover {
+            background: #eee;
+            color: black;
+        }
+
+        &:active {
+            background: #ddd;
+        }
     }
 </style>
