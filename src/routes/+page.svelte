@@ -1,14 +1,17 @@
 <script lang="ts">
+    import {onMount} from "svelte";
     import "../global.scss";
     import EditTeachingMaterial from "./EditTeachingMaterial.svelte";
     import EditOutline from "./EditOutline.svelte";
     import EditContent from "./EditContent.svelte";
+    import {error} from "@sveltejs/kit";
 
     const title = "Teaching Material Generator";
 
     let teachingMaterial: HTMLElement;
     let outline: string = "outline to show";
     let content: string = "content to show";
+    let id: string;
     const httpAddr = "http://localhost:5173/api/0";
 
     enum Progress {
@@ -19,7 +22,26 @@
 
     let currentPage: Progress = Progress.EditingTeachingMaterial;
 
-    async function generateOutline(sections: Array<string>) {
+    async function sendPostToBackend(jsonToSend: string) {
+        const response = await fetch(httpAddr, {
+            method: 'POST',
+            headers: new Headers({
+                "Content-Type": "text/plain",
+                "Content-Length": jsonToSend.length.toString(),
+            }),
+            body: jsonToSend,
+        });
+
+        if (!response.ok) {
+            alert("session timeout!");
+            location.reload();
+        }
+
+        const result: string = await response.json();
+        return result;
+    }
+
+    function generateOutline(sections: Array<string>) {
         console.log("Generate outline");
 
         if (sections.length == 0) {
@@ -30,43 +52,27 @@
         const jsonToSend = JSON.stringify({
             "operation": "generate outline",
             "content": sections,
+            "client id": id,
         });
         console.log(jsonToSend)
 
-        const response = await fetch(httpAddr, {
-            method: 'POST',
-            headers: new Headers({
-                "Content-Type": "text/plain",
-                "Content-Length": jsonToSend.length.toString(),
-            }),
-            body: jsonToSend,
-        });
-
-        outline = await response.json();
+        sendPostToBackend(jsonToSend).then((value) => {outline = value});
         console.log(outline)
 
         currentPage = Progress.EditingOutline;
     }
 
-    async function regenerateOutline() {
+    function regenerateOutline() {
         const jsonToSend = JSON.stringify({
             "operation": "regenerate outline",
+            "client id": id,
         });
 
-        const response = await fetch(httpAddr, {
-            method: 'POST',
-            headers: new Headers({
-                "Content-Type": "text/plain",
-                "Content-Length": jsonToSend.length.toString(),
-            }),
-            body: jsonToSend,
-        });
-
-        outline = await response.json();
+        sendPostToBackend(jsonToSend).then((value) => {outline = value});
         console.log(outline)
     }
 
-    async function generateContent(outline: string) {
+    function generateContent(outline: string) {
         console.log("Generate content");
 
         if (outline.length == 0) {
@@ -77,39 +83,23 @@
         const jsonToSend = JSON.stringify({
             "operation": "generate content",
             "content": outline,
+            "client id": id,
         });
         console.log(jsonToSend)
 
-        const response = await fetch(httpAddr, {
-            method: 'POST',
-            headers: new Headers({
-                "Content-Type": "text/plain",
-                "Content-Length": jsonToSend.length.toString(),
-            }),
-            body: jsonToSend,
-        });
-
-        content = await response.json();
+        sendPostToBackend(jsonToSend).then((value) => {content = value});
         console.log(content);
 
         currentPage = Progress.EditingPptContent;
     }
 
-    async function regenerateContent() {
+    function regenerateContent() {
         const jsonToSend = JSON.stringify({
             "operation": "regenerate content",
+            "client id": id,
         });
 
-        const response = await fetch(httpAddr, {
-            method: 'POST',
-            headers: new Headers({
-                "Content-Type": "text/plain",
-                "Content-Length": jsonToSend.length.toString(),
-            }),
-            body: jsonToSend,
-        });
-
-        content = await response.json();
+        sendPostToBackend(jsonToSend).then((value) => {content = value});
         console.log(content)
     }
 
@@ -124,6 +114,7 @@
         const jsonToSend = JSON.stringify({
             "operation": "upload content",
             "content": content,
+            "client id": id,
         });
         console.log(jsonToSend)
 
@@ -140,6 +131,7 @@
     function generatePPT() {
         const jsonToSend = JSON.stringify({
             "operation": "generate ppt",
+            "client id": id,
         });
 
         fetch(httpAddr, {
@@ -148,6 +140,7 @@
                 "Content-Type": "text/plain",
                 "Content-Length": jsonToSend.length.toString(),
             }),
+            body: jsonToSend,
         })
             .then(response => response.blob())
             .then((blob) => {
@@ -161,6 +154,29 @@
             })
     }
 
+    onMount(async () =>{
+        while (true) {
+            id = Math.floor(Math.random() * 1000).toString();
+
+            const jsonToSend = JSON.stringify({
+                "operation": "check client id",
+                "content": id,
+            });
+
+            const response = await fetch(httpAddr, {
+                method: 'POST',
+                headers: new Headers({
+                    "Content-Type": "text/plain",
+                    "Content-Length": jsonToSend.length.toString(),
+                }),
+                body: jsonToSend,
+            });
+
+            let isIdOk = await response.json()
+            console.log(isIdOk)
+            if (isIdOk) return;
+        }
+    });
 </script>
 
 <svelte:head>
