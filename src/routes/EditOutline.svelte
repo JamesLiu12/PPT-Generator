@@ -4,11 +4,8 @@
 
     const dispatch = createEventDispatcher();
 
-    let outlineInput: string;
+    export let outlineInput: string;
 
-    function regenerateOutline() {
-        // TODO
-    }
 </script>
 
 <textarea class="section-input" contenteditable="true" bind:value={outlineInput}/>
@@ -16,7 +13,7 @@
 <br>
 
 <div class="operations">
-    <Button on:click={regenerateOutline}>
+    <Button on:click={() => dispatch("regenerate-outline")}>
         Regenerate outline
     </Button>
     <Button on:click={() => dispatch("generate-content", outlineInput)}>
