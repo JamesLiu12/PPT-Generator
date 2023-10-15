@@ -147,7 +147,7 @@
                 let url: string = window.URL.createObjectURL(blob);
                 let fileLink: HTMLAnchorElement = document.createElement('a');
                 fileLink.href = url;
-                fileLink.download = 'generated.ppt';
+                fileLink.download = 'generated.pdf';
                 document.body.appendChild(fileLink);
                 fileLink.click();
                 fileLink.remove();
