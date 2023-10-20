@@ -22,7 +22,7 @@
 
     let currentPage: Progress = Progress.EditingTeachingMaterial;
 
-    async function sendPostToBackend(jsonToSend: string) {
+    async function sendPostToBackend(jsonToSend: string) {D
         const response = await fetch(httpAddr, {
             method: 'POST',
             headers: new Headers({

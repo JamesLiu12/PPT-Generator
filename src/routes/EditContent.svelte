@@ -21,7 +21,7 @@
         Upload content
     </Button>
     <Button on:click={() => dispatch("generate-ppt")}>
-        Generate PPT
+        Generate PDF
     </Button>
 </div>
 
